@@ -3,7 +3,7 @@
 $pdo = new PDO('sqlite:finance.db');
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Создаём таблицы, если не существуют
+// Таблица пользователей
 $pdo->exec("CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
@@ -11,9 +11,11 @@ $pdo->exec("CREATE TABLE IF NOT EXISTS users (
     created_at TEXT NOT NULL
 )");
 
-$pdo->exec("CREATE TABLE IF NOT EXISTS expenses (
+// Таблица операций (и доходы, и расходы)
+$pdo->exec("CREATE TABLE IF NOT EXISTS transactions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
+    type TEXT NOT NULL CHECK(type IN ('income', 'expense')),  -- Новое поле!
     amount REAL NOT NULL,
     category TEXT NOT NULL,
     comment TEXT,

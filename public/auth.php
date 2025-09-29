@@ -1,11 +1,11 @@
 <?php
 session_start();
+require_once 'lang.php';
 require_once 'db.php';
 
 $message = '';
 $error = '';
 
-// Обработка форм
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action'])) {
         $action = $_POST['action'];
@@ -13,12 +13,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $password = $_POST['password'] ?? '';
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $error = 'Некорректный email';
-        } elseif (strlen($password) < 6) {
-            $error = 'Пароль должен быть не короче 6 символов';
+            $error = __('invalid_email', $lang);
+        } elseif ($action !== 'forgot' && strlen($password) < 6) {
+            $error = __('password_too_short', $lang);
         } else {
             if ($action === 'login') {
-                // Вход
                 $stmt = $pdo->prepare("SELECT id, password_hash FROM users WHERE email = ?");
                 $stmt->execute([$email]);
                 $user = $stmt->fetch();
@@ -28,23 +27,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     header('Location: dashboard.php');
                     exit;
                 } else {
-                    $error = 'Неверный email или пароль';
+                    $error = __('invalid_credentials', $lang);
                 }
             } elseif ($action === 'register') {
-                // Регистрация
                 $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
                 $stmt->execute([$email]);
                 if ($stmt->fetch()) {
-                    $error = 'Пользователь с таким email уже существует';
+                    $error = __('email_exists', $lang);
                 } else {
                     $hash = password_hash($password, PASSWORD_DEFAULT);
                     $stmt = $pdo->prepare("INSERT INTO users (email, password_hash, created_at) VALUES (?, ?, datetime('now'))");
                     $stmt->execute([$email, $hash]);
-                    $message = 'Регистрация успешна! Теперь войдите.';
+                    $message = __('registration_success', $lang);
                 }
             } elseif ($action === 'forgot') {
-                // Восстановление (демо)
-                $message = 'Ссылка для восстановления отправлена на ваш email (демо-режим).';
+                // Безопасная заглушка: не раскрываем, существует ли email
+                $message = __('recovery_sent', $lang);
             }
         }
     }
@@ -52,11 +50,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="<?= $lang ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Авторизация — Finance Tracker</title>
+    <title><?= __('auth_title', $lang) ?> — Finance Tracker</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -97,10 +95,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
+    <!-- Language switcher -->
+    <div class="position-fixed top-0 end-0 p-2" style="z-index: 1000;">
+        <div class="btn-group" role="group">
+            <a href="?lang=ru" class="btn btn-sm <?= $lang === 'ru' ? 'btn-primary' : 'btn-outline-primary' ?>">RU</a>
+            <a href="?lang=en" class="btn btn-sm <?= $lang === 'en' ? 'btn-primary' : 'btn-outline-primary' ?>">EN</a>
+            <a href="?lang=ko" class="btn btn-sm <?= $lang === 'ko' ? 'btn-primary' : 'btn-outline-primary' ?>">KO</a>
+        </div>
+    </div>
+
     <div class="container auth-container">
         <div class="text-center mb-4">
-            <h2>🔐 Авторизация</h2>
-            <p class="text-muted">Войдите или создайте аккаунт</p>
+            <h2><?= __('auth_title', $lang) ?></h2>
+            <p class="text-muted"><?= __('auth_subtitle', $lang) ?></p>
         </div>
 
         <?php if ($error): ?>
@@ -110,77 +117,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="alert alert-success"><?= htmlspecialchars($message) ?></div>
         <?php endif; ?>
 
-        <!-- Переключатели -->
         <ul class="nav nav-pills mb-4 justify-content-center" id="formSwitcher">
             <li class="nav-item">
-                <a class="nav-link active" href="#" data-form="login">Вход</a>
+                <a class="nav-link active" href="#" data-form="login"><?= __('login_tab', $lang) ?></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#" data-form="register">Регистрация</a>
+                <a class="nav-link" href="#" data-form="register"><?= __('register_tab', $lang) ?></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#" data-form="forgot">Забыли пароль?</a>
+                <a class="nav-link" href="#" data-form="forgot"><?= __('forgot_tab', $lang) ?></a>
             </li>
         </ul>
 
-        <!-- Формы -->
         <div class="card p-4">
-            <!-- Форма входа -->
             <form method="POST" class="form-section active" id="form-login">
                 <input type="hidden" name="action" value="login">
                 <div class="mb-3">
-                    <label class="form-label">Email</label>
+                    <label class="form-label"><?= __('email', $lang) ?></label>
                     <input type="email" name="email" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Пароль</label>
+                    <label class="form-label"><?= __('password', $lang) ?></label>
                     <input type="password" name="password" class="form-control" required minlength="6">
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Войти</button>
+                <button type="submit" class="btn btn-primary w-100"><?= __('btn_login', $lang) ?></button>
             </form>
 
-            <!-- Форма регистрации -->
             <form method="POST" class="form-section" id="form-register">
                 <input type="hidden" name="action" value="register">
                 <div class="mb-3">
-                    <label class="form-label">Email</label>
+                    <label class="form-label"><?= __('email', $lang) ?></label>
                     <input type="email" name="email" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Пароль (мин. 6 символов)</label>
+                    <label class="form-label"><?= __('password', $lang) ?></label>
                     <input type="password" name="password" class="form-control" required minlength="6">
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
+                <button type="submit" class="btn btn-primary w-100"><?= __('btn_register', $lang) ?></button>
             </form>
 
-            <!-- Форма восстановления -->
             <form method="POST" class="form-section" id="form-forgot">
                 <input type="hidden" name="action" value="forgot">
                 <div class="mb-3">
-                    <label class="form-label">Email</label>
+                    <label class="form-label"><?= __('email', $lang) ?></label>
                     <input type="email" name="email" class="form-control" required>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Отправить ссылку</button>
+                <button type="submit" class="btn btn-primary w-100"><?= __('btn_forgot', $lang) ?></button>
             </form>
         </div>
 
         <div class="text-center mt-3">
-            <a href="index.php" class="text-muted">← Вернуться на главную</a>
+            <a href="index.php" class="text-muted"><?= __('back_to_main', $lang) ?></a>
         </div>
     </div>
 
     <script>
-        // Переключение форм
         document.querySelectorAll('#formSwitcher a').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
                 const formId = this.getAttribute('data-form');
-                
-                // Убираем активность со всех
                 document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
                 document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
-                
-                // Добавляем активность
                 this.classList.add('active');
                 document.getElementById('form-' + formId).classList.add('active');
             });

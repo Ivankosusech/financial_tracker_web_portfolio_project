@@ -1,12 +1,13 @@
 <?php
-// Никакой логики — просто лендинг
+session_start();
+require_once 'lang.php';
 ?>
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="<?= $lang ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finance Tracker — Твой личный помощник в финансах</title>
+    <title><?= __('title', $lang) ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -70,15 +71,23 @@
     </style>
 </head>
 <body>
+    <!-- Language switcher -->
+    <div class="position-fixed top-0 end-0 p-2" style="z-index: 1000;">
+        <div class="btn-group" role="group">
+            <a href="?lang=ru" class="btn btn-sm <?= $lang === 'ru' ? 'btn-primary' : 'btn-outline-primary' ?>">RU</a>
+            <a href="?lang=en" class="btn btn-sm <?= $lang === 'en' ? 'btn-primary' : 'btn-outline-primary' ?>">EN</a>
+            <a href="?lang=ko" class="btn btn-sm <?= $lang === 'ko' ? 'btn-primary' : 'btn-outline-primary' ?>">KO</a>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Hero -->
         <section class="hero-section text-center">
-            <h1 class="display-4 fw-bold mb-3">💰 Finance Tracker</h1>
+            <h1 class="display-4 fw-bold mb-3"><?= __('hero_title', $lang) ?></h1>
             <p class="lead text-muted mb-4">
-                Простой, безопасный и удобный инструмент для учёта личных финансов.<br>
-                Отслеживай расходы, анализируй привычки и достигай финансовых целей.
+                <?= __('hero_desc', $lang) ?>
             </p>
-            <a href="auth.php" class="btn btn-primary btn-lg">Войти / Зарегистрироваться</a>
+            <a href="auth.php" class="btn btn-primary btn-lg"><?= __('btn_login_register', $lang) ?></a>
         </section>
 
         <!-- Features -->
@@ -87,27 +96,27 @@
                 <div class="col-md-4">
                     <div class="card p-4 h-100">
                         <div class="feature-icon mx-auto">📊</div>
-                        <h5>Аналитика</h5>
+                        <h5><?= __('features.analytics', $lang) ?></h5>
                         <p class="text-muted">
-                            Визуализация трат по категориям и времени. Понимай, куда уходят деньги.
+                            <?= __('features.analytics_desc', $lang) ?>
                         </p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="card p-4 h-100">
                         <div class="feature-icon mx-auto">🔒</div>
-                        <h5>Безопасность</h5>
+                        <h5><?= __('features.security', $lang) ?></h5>
                         <p class="text-muted">
-                            Твои данные хранятся локально. Никаких облаков — только ты и твой бюджет.
+                            <?= __('features.security_desc', $lang) ?>
                         </p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="card p-4 h-100">
                         <div class="feature-icon mx-auto">📱</div>
-                        <h5>Telegram-бот</h5>
+                        <h5><?= __('features.telegram', $lang) ?></h5>
                         <p class="text-muted">
-                            В будущем — добавление трат прямо из Telegram. Уже в разработке!
+                            <?= __('features.telegram_desc', $lang) ?>
                         </p>
                     </div>
                 </div>
@@ -116,33 +125,33 @@
 
         <!-- About Me -->
         <section class="text-center mb-5">
-            <h2 class="mb-4">Об авторе</h2>
+            <h2 class="mb-4"><?= __('about_author', $lang) ?></h2>
             <p class="text-muted mb-3">
-                Этот проект создан как часть портфолио, демонстрирующего навыки в трёх ролях:
+                <?= __('portfolio_roles', $lang) ?>
             </p>
             <div class="d-flex justify-content-center gap-4 flex-wrap">
-                <span class="badge bg-primary">Веб-разработка (PHP)</span>
-                <span class="badge bg-success">Аналитика данных (Python)</span>
-                <span class="badge bg-warning text-dark">Тестирование (QA)</span>
+                <span class="badge bg-primary">Web Dev (PHP)</span>
+                <span class="badge bg-success">Data Analysis (Python)</span>
+                <span class="badge bg-warning text-dark">QA Testing</span>
             </div>
         </section>
 
         <!-- Contacts -->
         <section class="text-center mb-5">
-            <h3>Связаться со мной</h3>
+            <h3><?= __('contact_me', $lang) ?></h3>
             <div class="mt-3">
                 <!-- 🔁 ЗАМЕНИ ЭТИ ССЫЛКИ НА СВОИ! -->
                 <p>
-                    <a href="https://t.me/your_telegram" class="contact-link" target="_blank">Telegram</a> •
-                    <a href="mailto:your.email@example.com" class="contact-link">Email</a> •
-                    <a href="https://github.com/your-username" class="contact-link" target="_blank">GitHub</a>
+                    <a href="https://t.me/susichhh" class="contact-link" target="_blank">Telegram</a> •
+                    <a href="mailto:zorkovivan134@gmail.com" class="contact-link">Email</a> •
+                    <a href="https://github.com/Ivankosusech" class="contact-link" target="_blank">GitHub</a>
                 </p>
             </div>
         </section>
     </div>
 
     <footer class="container text-center">
-        <p class="mb-0">&copy; <?= date('Y') ?> Finance Tracker. Проект для портфолио.</p>
+        <p class="mb-0">&copy; <?= date('Y') ?> <?= __('footer', $lang) ?></p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
